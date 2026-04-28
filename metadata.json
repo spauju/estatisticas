@@ -1,6 +1,6 @@
 {
-  "name": "Remix: Analisador de Gráficos de Paralelismo",
-  "description": "Ferramenta para extrair e somar desvios de paralelismo de gráficos em imagens e PDFs.",
+  "name": "Estatísticas de Paralelismo",
+  "description": "Analisador profissional de gráficos de desvio de paralelismo com IA.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "image_analysis"

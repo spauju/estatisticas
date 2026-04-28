@@ -4,11 +4,11 @@ let genAI: GoogleGenAI | null = null;
 
 function getGenAI() {
   if (!genAI) {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.VITE_GEMINI_API_KEY;
     if (!apiKey || apiKey === 'MY_GEMINI_API_KEY' || apiKey === '' || apiKey === 'undefined') {
-      throw new Error("Chave Gemini não configurada. Se estiver no Netlify/Vercel, adicione GEMINI_API_KEY nas variáveis de ambiente. Se estiver local, verifique seu .env.");
+      throw new Error("Chave Gemini não configurada. Verifique se a variável VITE_GEMINI_API_KEY está definida no seu ambiente (Netlify/Vercel/Local).");
     }
-    genAI = new GoogleGenAI(apiKey);
+    genAI = new GoogleGenAI({ apiKey });
   }
   return genAI;
 }
@@ -44,10 +44,9 @@ export async function analyzeChartFile(
   `;
 
   const ai = getGenAI();
-  const response = await ai.getGenerativeModel({
+  const response = await ai.models.generateContent({
     model,
-  }).generateContent({
-    contents: [{
+    contents: {
       parts: [
         {
           inlineData: {
@@ -57,8 +56,8 @@ export async function analyzeChartFile(
         },
         { text: prompt },
       ],
-    }],
-    generationConfig: {
+    },
+    config: {
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -96,8 +95,8 @@ export async function analyzeChartFile(
     },
   });
 
-  const responseText = response.response.text();
-  if (!responseText) throw new Error("Falha na análise do modelo.");
+  const text = response.text;
+  if (!text) throw new Error("Falha na análise do modelo.");
 
-  return JSON.parse(responseText) as AnalysisResult;
+  return JSON.parse(text) as AnalysisResult;
 }
