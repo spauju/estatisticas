@@ -4,9 +4,13 @@ let genAI: GoogleGenAI | null = null;
 
 function getGenAI() {
   if (!genAI) {
-    const apiKey = process.env.VITE_GEMINI_API_KEY;
+    // Tenta pegar de várias fontes possíveis
+    const apiKey = (import.meta.env?.VITE_GEMINI_API_KEY) || 
+                   (process.env?.VITE_GEMINI_API_KEY) || 
+                   (process.env?.GEMINI_API_KEY);
+
     if (!apiKey || apiKey === 'MY_GEMINI_API_KEY' || apiKey === '' || apiKey === 'undefined') {
-      throw new Error("Chave Gemini não configurada. Verifique se a variável VITE_GEMINI_API_KEY está definida no seu ambiente (Netlify/Vercel/Local).");
+      throw new Error("Chave Gemini não configurada. Verifique se a variável VITE_GEMINI_API_KEY está definida no seu ambiente e REFAÇA O DEPLOY (Netlify/Vercel).");
     }
     genAI = new GoogleGenAI({ apiKey });
   }
