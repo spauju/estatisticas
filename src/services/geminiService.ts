@@ -5,8 +5,8 @@ let genAI: GoogleGenAI | null = null;
 function getGenAI() {
   if (!genAI) {
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey || apiKey === 'MY_GEMINI_API_KEY' || apiKey === 'undefined') {
-      throw new Error("Configuração ausente: GEMINI_API_KEY não foi encontrada nas variáveis de ambiente.");
+    if (!apiKey || apiKey === 'MY_GEMINI_API_KEY' || apiKey === '' || apiKey === 'undefined') {
+      throw new Error("Chave Gemini não configurada. Se estiver no Netlify/Vercel, adicione GEMINI_API_KEY nas variáveis de ambiente. Se estiver local, verifique seu .env.");
     }
     genAI = new GoogleGenAI(apiKey);
   }
