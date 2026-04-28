@@ -85,44 +85,53 @@ export default function App() {
   const downloadExcel = () => {
     if (!result) return;
 
-    // Calculate total sum for validation
+    // Calcular soma total para validação
     const totalSum = result.classes.reduce((acc, curr) => acc + curr.totalPercentage, 0);
 
-    // Prepare data for Classes Sheet
+    // Dados para a aba de Resumo
     const classData = result.classes.map(cls => ({
-      'Class (cm)': cls.deviationCm,
-      'Total (%)': cls.totalPercentage.toFixed(2),
+      'Classe (cm)': cls.deviationCm,
+      'Total (%)': `${cls.totalPercentage.toFixed(2)}%`,
       'Status': getStatusLabel(cls.totalPercentage),
-      'Segments/Details': cls.details.join(' | ')
+      'Segmentos e Detalhes': cls.details.join(' | ')
     }));
 
-    // Add a summary row
+    // Adicionar linha de totalizador
     classData.push({
-      'Class (cm)': 'TOTAL GERAL',
-      'Total (%)': totalSum.toFixed(2),
+      'Classe (cm)': 'TOTAL GERAL',
+      'Total (%)': `${totalSum.toFixed(2)}%`,
       'Status': '-',
-      'Segments/Details': ''
+      'Segmentos e Detalhes': ''
     } as any);
 
-    // Prepare data for Raw Extractions Sheet
+    // Dados para a aba de Extrações Brutas
     const rawData = result.rawExtractions.map(ext => ({
-      'Segment/Side': ext.side,
-      'Value (cm)': ext.deviation,
-      'Percentage (%)': ext.percentage,
+      'Segmento/Lado': ext.side,
+      'Valor (cm)': ext.deviation,
+      'Porcentagem (%)': `${ext.percentage}%`,
       'Status': getStatusLabel(ext.percentage)
     }));
 
     const wb = utils.book_new();
     
-    // Better column widths and formatting could be done with more xlsx features, 
-    // but for now we focus on data order which is already Class -> Total -> Status -> Details.
+    // Criar planilhas
     const wsClasses = utils.json_to_sheet(classData);
-    utils.book_append_sheet(wb, wsClasses, "Resumo por Classe");
-
     const wsRaw = utils.json_to_sheet(rawData);
+
+    // Ajustar largura das colunas básico
+    const wscols = [
+      {wch: 15}, // Classe
+      {wch: 15}, // Total
+      {wch: 15}, // Status
+      {wch: 60}, // Detalhes
+    ];
+    wsClasses['!cols'] = wscols;
+    wsRaw['!cols'] = [{wch: 25}, {wch: 15}, {wch: 15}, {wch: 15}];
+
+    utils.book_append_sheet(wb, wsClasses, "Resumo por Classe");
     utils.book_append_sheet(wb, wsRaw, "Extrações Brutas");
 
-    writeFile(wb, `analise_paralelismo_${file?.name.split('.')[0] || 'export'}.xlsx`);
+    writeFile(wb, `Estatisticas_Paralelismo_${file?.name.split('.')[0] || 'relatorio'}.xlsx`);
   };
 
   const getStatusColor = (percentage: number) => {
@@ -158,8 +167,8 @@ export default function App() {
             <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500 font-semibold">Paralellism TechLab</span>
           </div>
           <h1 className="text-5xl md:text-8xl font-sans font-bold tracking-tight leading-[0.9] text-slate-900 mb-8">
-            Analisador <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-500">Multiclasse.</span>
+            Estatísticas <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-indigo-600">de Paralelismo.</span>
           </h1>
           <p className="max-w-2xl text-xl text-slate-500 leading-relaxed font-normal">
             Extração automatizada de desvios via visão computacional. Converta relatórios visuais complexos em dados estruturados e consolidados instantaneamente.
