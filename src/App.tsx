@@ -281,8 +281,13 @@ export default function App() {
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-slate-200 pb-6">
                     <div>
-                      <h3 className="font-sans text-xl font-bold text-slate-900">
+                      <h3 className="font-sans text-xl font-bold text-slate-900 flex items-center gap-2">
                          Detalhamento por Classe
+                         {result.modelUsed && (
+                           <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-mono font-bold border border-slate-200">
+                             AI: {result.modelUsed}
+                           </span>
+                         )}
                       </h3>
                       <p className="text-sm text-slate-500 mt-1">{result.classes.length} grupos de desvio detectados</p>
                     </div>
@@ -394,7 +399,7 @@ export default function App() {
           </div>
         </div>
         <div className="flex flex-col md:items-end gap-3 text-[10px] font-mono font-bold uppercase tracking-widest">
-           <span>Build 2024.04 // Engine G3P</span>
+           <span>Build 2024.04 // Engine {result?.modelUsed || 'G3P'}</span>
            <span className="opacity-50 underline decoration-indigo-500/30 underline-offset-4">Relatório Digital Certificado</span>
         </div>
       </footer>

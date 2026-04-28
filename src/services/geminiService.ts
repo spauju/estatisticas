@@ -25,6 +25,7 @@ export interface ParallelismClass {
 export interface AnalysisResult {
   classes: ParallelismClass[];
   rawExtractions: Array<{ side: string; deviation: number; percentage: number }>;
+  modelUsed?: string;
 }
 
 function getDeepSeekApiKey() {
@@ -81,7 +82,8 @@ async function analyzeWithDeepSeek(fileBase64: string, mimeType: string): Promis
   }
 
   const data = await response.json();
-  return JSON.parse(data.choices[0].message.content) as AnalysisResult;
+  const result = JSON.parse(data.choices[0].message.content) as AnalysisResult;
+  return { ...result, modelUsed: "DeepSeek-Chat" };
 }
 
 export async function analyzeChartFile(
@@ -158,16 +160,24 @@ export async function analyzeChartFile(
 
     const text = response.text;
     if (!text) throw new Error("Falha na análise do modelo.");
-    return JSON.parse(text) as AnalysisResult;
+    const result = JSON.parse(text) as AnalysisResult;
+    return { ...result, modelUsed: "Gemini 3 Flash" };
 
-  } catch (err) {
+  } catch (err: any) {
     console.warn("Gemini falhou, tentando DeepSeek...", err);
+    
+    // Verifica se temos a chave do DeepSeek antes de tentar
+    if (!process.env.VITE_DEEPSEEK_API_KEY) {
+      console.error("DeepSeek não configurado para fallback.");
+      throw err;
+    }
+
     try {
-      // DeepSeek fallback (apenas se não for PDF ou se a API suportar PDF via URL, o que é raro)
       return await analyzeWithDeepSeek(fileBase64, mimeType);
-    } catch (fallbackErr) {
-      console.error("Ambos falharam:", fallbackErr);
-      throw err; // Lança o erro original do Gemini se o fallback também falhar
+    } catch (fallbackErr: any) {
+      console.error("Erro no fallback DeepSeek:", fallbackErr);
+      // Lança um erro que menciona ambos os problemas
+      throw new Error(`Falha em ambos os modelos. Gemini: ${err.message}. DeepSeek: ${fallbackErr.message}`);
     }
   }
 }
