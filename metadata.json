@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Analisador de Gráficos de Paralelismo",
+  "description": "Ferramenta para extrair e somar desvios de paralelismo de gráficos em imagens e PDFs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "image_analysis"
+  ]
+}
