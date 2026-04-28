@@ -1,6 +1,17 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let genAI: GoogleGenAI | null = null;
+
+function getGenAI() {
+  if (!genAI) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey || apiKey === 'MY_GEMINI_API_KEY' || apiKey === 'undefined') {
+      throw new Error("Configuração ausente: GEMINI_API_KEY não foi encontrada nas variáveis de ambiente.");
+    }
+    genAI = new GoogleGenAI(apiKey);
+  }
+  return genAI;
+}
 
 export interface ParallelismClass {
   deviationCm: number;
@@ -32,9 +43,11 @@ export async function analyzeChartFile(
     Retorne os dados formatados em JSON conforme o esquema solicitado.
   `;
 
-  const response = await ai.models.generateContent({
+  const ai = getGenAI();
+  const response = await ai.getGenerativeModel({
     model,
-    contents: {
+  }).generateContent({
+    contents: [{
       parts: [
         {
           inlineData: {
@@ -44,8 +57,8 @@ export async function analyzeChartFile(
         },
         { text: prompt },
       ],
-    },
-    config: {
+    }],
+    generationConfig: {
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -83,8 +96,8 @@ export async function analyzeChartFile(
     },
   });
 
-  const text = response.text;
-  if (!text) throw new Error("Falha na análise do modelo.");
+  const responseText = response.response.text();
+  if (!responseText) throw new Error("Falha na análise do modelo.");
 
-  return JSON.parse(text) as AnalysisResult;
+  return JSON.parse(responseText) as AnalysisResult;
 }

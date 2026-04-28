@@ -45,7 +45,11 @@ export default function App() {
       setResult(data);
     } catch (err) {
       console.error(err);
-      setError('Ocorreu um erro ao processar o arquivo. Tente novamente.');
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Ocorreu um erro ao processar o arquivo. Tente novamente.');
+      }
     } finally {
       setAnalyzing(false);
     }
