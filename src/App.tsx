@@ -281,10 +281,10 @@ export default function App() {
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-slate-200 pb-6">
                     <div>
-                      <h3 className="font-sans text-xl font-bold text-slate-900 flex items-center gap-2">
+                      <h3 className="font-sans text-xl font-bold text-black flex items-center gap-2">
                          Detalhamento por Classe
                          {result.modelUsed && (
-                           <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-mono font-bold border border-slate-200">
+                           <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-mono font-bold border border-emerald-200">
                              AI: {result.modelUsed}
                            </span>
                          )}
